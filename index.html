@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield — Network Threat Prevention</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand"><div class="brand-icon">⬡</div><div><b>CyberShield <small>v4.2-ENT</small></b><span>Firewall Engine &amp; Network Threat Prevention</span></div></div>
+    <div class="top-status"><span><i class="dot green"></i> Firewall: <b>AKTIF (ALLOW-LIST)</b></span><span><i class="dot blue"></i> IDS/IPS Engine: <b>ONLINE</b></span><span>Tingkat Ancaman: <b class="low">RENDAH</b></span></div>
+    <div class="clock"><b id="clock">--:--:--</b><small>Uptime: 99.98%</small></div>
+    <button class="power-btn" id="firewallToggle">⏻ Matikan Firewall</button>
+  </header>
+
+  <aside class="sidebar">
+    <nav>
+      <button class="nav active" data-page="dashboard">▦ <span>Dashboard</span></button>
+      <button class="nav" data-page="rules">♧ <span>Aturan Firewall</span><em id="ruleBadge">0</em></button>
+      <button class="nav" data-page="traffic">⌁ <span>Simulasi Traffic &amp; Serangan</span><i class="nav-live"></i></button>
+      <button class="nav" data-page="logs">▤ <span>Log Keamanan</span></button>
+      <button class="nav" data-page="blacklist">⊘ <span>Blacklist IP &amp; Ancaman</span></button>
+    </nav>
+    <div class="system-card">
+      <div class="sys-line"><span>Beban CPU</span><b id="cpu">18%</b></div><div class="meter"><i style="width:18%"></i></div>
+      <div class="sys-line"><span>Penggunaan Memori</span><b id="memory">42%</b></div><div class="meter"><i style="width:42%"></i></div>
+      <div class="sys-line"><span>Bandwidth In/Out</span><b id="bandwidth">1.4 MB/s</b></div>
+    </div>
+    <div class="sidebar-foot">● SYSTEM OPERATIONAL<br><small>CyberShield Network Monitor</small></div>
+  </aside>
+
+  <main class="main">
+    <section class="page active" id="page-dashboard">
+      <div class="page-heading"><div><h1>Dashboard Monitoring</h1><p>Ringkasan aktivitas dan perlindungan jaringan secara real-time (simulasi).</p></div><button class="live-pill live-control" id="liveToggle" type="button"><i class="dot green" id="liveDot"></i> <span id="liveLabel">LIVE MONITORING · AKTIF</span> <b id="liveState">PAUSE</b></button></div>
+      <div class="monitor-strip"><span><i class="dot green" id="monitorDot"></i> <b id="monitorStatus">Monitoring aktif</b></span><span>Interval data: 3 detik</span><span id="lastPacket">Paket terakhir: menunggu data</span><span class="monitor-note">MODE SIMULASI</span></div>
+      <div class="stats">
+        <article class="stat"><div class="stat-top">Total Paket Diinspeksi <span class="stat-icon blue-bg">▣</span></div><strong id="packets">124,580</strong><small class="positive">↗ +12.4% dalam 1 jam terakhir</small></article>
+        <article class="stat"><div class="stat-top">Koneksi Diizinkan <span class="stat-icon green-bg">✓</span></div><strong class="green-text" id="allowed">118,920</strong><small>Tingkat Kelulusan: <b id="passRate">95.4%</b></small></article>
+        <article class="stat"><div class="stat-top">Ancaman Diblokir <span class="stat-icon red-bg">⛨</span></div><strong class="red-text" id="blocked">5,660</strong><small class="danger">⚠ Filter Malicious Active</small></article>
+        <article class="stat"><div class="stat-top">Aturan Firewall Aktif <span class="stat-icon cyan-bg">☷</span></div><strong class="cyan-text" id="activeRules">4</strong><small>Allow / Block Standard</small></article>
+      </div>
+      <div class="dashboard-grid">
+        <article class="panel traffic-panel"><div class="panel-title"><div><h3>⌁ Volume Traffic Waktu Nyata</h3><p>Koneksi Diizinkan vs Paket Diblokir (paket/detik)</p></div><div class="legend"><span><i class="dot green"></i> Diizinkan</span><span><i class="dot red"></i> Diblokir</span></div></div><canvas id="trafficChart"></canvas></article>
+        <article class="panel ports-panel"><div class="panel-title"><div><h3>◉ Port Paling Sering Diblokir</h3><p>Distribusi percobaan serangan berdasarkan port target</p></div></div><div id="portBars" class="port-bars"></div></article>
+        <article class="panel log-panel"><div class="panel-title"><h3>♧ Peringatan Keamanan Terkini</h3><button class="link-btn" data-goto="logs">Lihat Semua Log →</button></div><div class="table-wrap"><table><thead><tr><th>WAKTU</th><th>IP ASAL</th><th>PORT TARGET</th><th>DESKRIPSI SERANGAN</th><th>TINDAKAN</th></tr></thead><tbody id="recentLogs"></tbody></table></div></article>
+      </div>
+    </section>
+
+    <section class="page" id="page-rules">
+      <div class="page-heading"><div><h1>Manajemen Aturan Firewall</h1><p>Kelola kebijakan akses berdasarkan alamat IP dan port tujuan.</p></div><button class="primary-btn" id="openRule">＋ Tambah Aturan</button></div>
+      <div class="panel"><div class="panel-title"><h3>Daftar Aturan Firewall</h3><span class="muted" id="ruleCount">0 aturan</span></div><div class="table-wrap"><table><thead><tr><th>NAMA ATURAN</th><th>ALAMAT IP</th><th>PORT</th><th>AKSI</th><th>STATUS</th><th>KELOLA</th></tr></thead><tbody id="rulesTable"></tbody></table></div></div>
+      <div class="note">Prioritas simulasi: IP yang berada di blacklist selalu diblokir. Aturan firewall aktif berikutnya menentukan akses berdasarkan IP/port. Jika tidak ada aturan yang cocok, koneksi diizinkan secara default.</div>
+    </section>
+
+    <section class="page" id="page-traffic">
+      <div class="page-heading"><div><h1>Simulasi Traffic &amp; Serangan</h1><p>Uji keputusan firewall menggunakan paket jaringan simulasi.</p></div><span class="live-pill"><i class="dot green"></i> ENGINE ONLINE</span></div>
+      <div class="simulation-grid">
+        <article class="panel"><div class="panel-title"><h3>Generator Traffic</h3></div>
+          <form id="trafficForm" class="form-grid"><label>Alamat IP Sumber<input id="sourceIp" value="192.168.1.25" required pattern="^(\\d{1,3}\\.){3}\\d{1,3}$"></label><label>Port Tujuan<input id="targetPort" type="number" min="1" max="65535" value="443" required></label><label>Jenis Aktivitas<select id="activity"><option>HTTPS Request</option><option>SSH Login</option><option>FTP Access</option><option>DNS Query</option><option>Port Scan</option><option>Brute Force</option><option>Malware Payload</option></select></label><button class="primary-btn full" type="submit">▶ Jalankan Pemeriksaan</button></form>
+          <div class="result-box" id="trafficResult"><span class="result-symbol">⌁</span><div><b>Menunggu paket jaringan</b><p>Isi parameter lalu jalankan pemeriksaan untuk melihat keputusan firewall.</p></div></div>
+        </article>
+        <article class="panel attack-panel"><div class="panel-title"><h3>Simulasi Serangan</h3><span class="tag red-tag">TEST MODE</span></div><p class="muted">Jalankan skenario uji untuk menghasilkan aktivitas mencurigakan dan memeriksa respons firewall.</p>
+          <button class="attack-btn" data-attack="Port Scan">⌁ Simulasikan Port Scanning</button><button class="attack-btn" data-attack="Brute Force">⚿ Simulasikan Brute Force</button><button class="attack-btn" data-attack="Malware Payload">⚠ Simulasikan Malware Payload</button>
+          <div class="small-disclaimer">Seluruh aktivitas hanya berupa data simulasi lokal, tidak mengirim paket atau menyerang jaringan sungguhan.</div>
+        </article>
+      </div>
+      <article class="panel"><div class="panel-title"><h3>Aliran Traffic Terbaru</h3><span class="muted">10 aktivitas terakhir</span></div><div class="table-wrap"><table><thead><tr><th>WAKTU</th><th>IP SUMBER</th><th>PORT</th><th>AKTIVITAS</th><th>STATUS</th></tr></thead><tbody id="trafficTable"></tbody></table></div></article>
+    </section>
+
+    <section class="page" id="page-logs">
+      <div class="page-heading"><div><h1>Log Keamanan</h1><p>Riwayat kejadian, keputusan firewall, dan aktivitas mencurigakan.</p></div><button class="secondary-btn" id="exportLogs">↓ Ekspor CSV</button></div>
+      <article class="panel"><div class="panel-title"><h3>Riwayat Aktivitas</h3><button class="link-btn" id="clearLogs">Hapus Log</button></div><div class="table-wrap"><table><thead><tr><th>WAKTU</th><th>IP ASAL</th><th>PORT TARGET</th><th>JENIS AKTIVITAS</th><th>TINDAKAN SISTEM</th></tr></thead><tbody id="logsTable"></tbody></table></div></article>
+    </section>
+
+    <section class="page" id="page-blacklist">
+      <div class="page-heading"><div><h1>Blacklist IP &amp; Ancaman</h1><p>Kelola alamat IP yang selalu ditolak oleh sistem simulasi.</p></div></div>
+      <div class="panel blacklist-add"><form id="blacklistForm"><label>Alamat IP yang akan diblokir<input id="blacklistIp" placeholder="Contoh: 203.0.113.10" required pattern="^(\\d{1,3}\\.){3}\\d{1,3}$"></label><label>Alasan<input id="blacklistReason" placeholder="Contoh: Aktivitas mencurigakan"></label><button class="danger-btn" type="submit">＋ Blokir IP</button></form></div>
+      <article class="panel"><div class="panel-title"><h3>Daftar Blacklist</h3><span class="muted" id="blacklistCount">0 IP diblokir</span></div><div class="table-wrap"><table><thead><tr><th>ALAMAT IP</th><th>ALASAN</th><th>DITAMBAHKAN</th><th>AKSI</th></tr></thead><tbody id="blacklistTable"></tbody></table></div></article>
+      <article class="panel"><div class="panel-title"><h3>Daftar IP Diizinkan</h3><span class="muted" id="allowlistCount">0 IP diizinkan</span></div><p class="muted">IP di daftar ini mendapat pengecualian dari aturan BLOCK umum. Kamu bisa mencabut izin kapan saja.</p><div class="table-wrap"><table><thead><tr><th>ALAMAT IP</th><th>STATUS</th><th>AKSI</th></tr></thead><tbody id="allowlistTable"></tbody></table></div></article>
+    </section>
+    <footer>CyberShield © 2026 <span>Educational Network Security Simulator · Data bersifat simulasi</span></footer>
+  </main>
+</div>
+
+<div class="modal hidden" id="ruleModal"><div class="modal-card"><div class="modal-head"><h2>Tambah Aturan Firewall</h2><button class="icon-btn" id="closeRule">✕</button></div>
+<form id="ruleForm"><label>Nama Aturan<input id="ruleName" placeholder="Contoh: Blokir SSH" required></label><label>Alamat IP<input id="ruleIp" placeholder="* untuk semua IP atau 192.168.1.10" required></label><label>Port Tujuan<input id="rulePort" placeholder="* untuk semua port atau 22" required></label><label>Tindakan<select id="ruleAction"><option value="ALLOW">ALLOW — Izinkan</option><option value="BLOCK">BLOCK — Blokir</option></select></label><button class="primary-btn full" type="submit">Simpan Aturan</button></form></div></div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body></html>
